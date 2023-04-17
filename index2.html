@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ejemplo de CRUD de clientes con Vue2 y HTML</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h1>Clientes</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Correo electrónico</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="(cliente, index) in clientes">
+          <td>{{ cliente.nombre }}</td>
+          <td>{{ cliente.apellido }}</td>
+          <td>{{ cliente.correoElectronico }}</td>
+          <td>
+            <button @click="editarCliente(index)">Editar</button>
+            <button @click="eliminarCliente(index)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <form @submit.prevent="agregarCliente">
+      <h2>Agregar cliente</h2>
+
+      <label for="nombre">Nombre:</label>
+      <input type="text" id="nombre" v-model="nuevoCliente.nombre">
+
+      <label for="apellido">Apellido:</label>
+      <input type="text" id="apellido" v-model="nuevoCliente.apellido">
+
+      <label for="correoElectronico">Correo electrónico:</label>
+      <input type="email" id="correoElectronico" v-model="nuevoCliente.correoElectronico">
+
+      <button type="submit">Agregar</button>
+    </form>
+
+    <form v-if="clienteSeleccionado !== null" @submit.prevent="actualizarCliente">
+      <h2>Editar cliente</h2>
+
+      <label for="nombre">Nombre:</label>
+      <input type="text" id="nombre" v-model="clienteSeleccionado.nombre">
+
+      <label for="apellido">Apellido:</label>
+      <input type="text" id="apellido" v-model="clienteSeleccionado.apellido">
+
+      <label for="correoElectronico">Correo electrónico:</label>
+      <input type="email" id="correoElectronico" v-model="clienteSeleccionado.correoElectronico">
+
+      <button type="submit">Actualizar</button>
+
+      <button @click.prevent="cancelarEdicion">Cancelar</button>
+    </form>
+  </div>
+
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        clientes: [
+          { nombre: 'Juan', apellido: 'Pérez', correoElectronico: 'juan.perez@example.com' },
+          { nombre: 'María', apellido: 'García', correoElectronico: 'maria.garcia@example.com' },
+          { nombre: 'Pedro', apellido: 'González', correoElectronico: 'pedro.gonzalez@example.com' }
+        ],
+        nuevoCliente: {
+          nombre: '',
+          apellido: '',
+          correoElectronico: ''
+        },
+        clienteSeleccionado: null
+      },
+      methods: {
+        agregarCliente() {
+          this.clientes.push(this.nuevoCliente);
+          this.nuevoCliente = {
+            nombre: '',
+            apellido: '',
+            correoElectronico: ''
+          };
+        },
+        editarCliente(index) {
+          this.clienteSeleccionado = Object.assign({}, this.clientes[index]);
+        },
+        actualizarCliente() {
+          Object.assign(this.clientes[this.clientes.indexOf(this.clienteSeleccionado)], this.clienteSeleccionado);
+          this.cancelarEdicion();
+        },
+        eliminarCliente(index) {
+          if (confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
+            this.clientes.splice(index, 1);
+            this.cancelarEdicion();
+          }
+        },
+        cancelarEdicion() {
+          this.clienteSeleccionado = null;
+        }
+      }
+    })
+  </script>
+</body>
+</html>

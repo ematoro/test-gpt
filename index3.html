@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ejemplo de CRUD de clientes con Vue2 y HTML</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+  <div id="app" class="container">
+    <h1>Clientes</h1>
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Correo electrónico</th>
+		  <th>Dirección</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="(cliente, index) in clientes">
+          <td>{{ cliente.nombre }}</td>
+          <td>{{ cliente.apellido }}</td>
+          <td>{{ cliente.correoElectronico }}</td>
+		  <td>{{ cliente.direccion}}</td>
+          <td>
+            <button class="btn btn-primary" @click="editarCliente(index)">Editar</button>
+            <button class="btn btn-danger" @click="eliminarCliente(index)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <form v-if="clienteSeleccionado == null" @submit.prevent="agregarCliente">
+      <h2>Agregar cliente</h2>
+
+	  <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" class="form-control" v-model="nuevoCliente.nombre">
+      </div>
+
+      <div class="form-group">
+        <label for="apellido">Apellido:</label>
+        <input type="text" id="apellido" class="form-control" v-model="nuevoCliente.apellido">
+      </div>
+
+      <div class="form-group">
+        <label for="correoElectronico">Correo electrónico:</label>
+        <input type="email" id="correoElectronico" class="form-control" v-model="nuevoCliente.correoElectronico">
+      </div>
+	  
+	  <div class="form-group">
+		<label for="direccion">Dirección:</label>
+		<input type="text" id="direccion" class="form-control" v-model="nuevoCliente.direccion">
+	  </div>
+
+      <button type="submit" class="btn btn-success">Agregar</button>
+    </form>
+
+    <form v-if="clienteSeleccionado !== null" @submit.prevent="actualizarCliente">
+      <h2>Editar cliente</h2>
+
+      <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" class="form-control" v-model="clienteSeleccionado.nombre">
+      </div>
+
+      <div class="form-group">
+        <label for="apellido">Apellido:</label>
+        <input type="text" id="apellido" class="form-control" v-model="clienteSeleccionado.apellido">
+      </div>
+
+      <div class="form-group">
+        <label for="correoElectronico">Correo electrónico:</label>
+        <input type="email" id="correoElectronico" class="form-control" v-model="clienteSeleccionado.correoElectronico">
+      </div>
+	  
+	  <div class="form-group">
+		<label for="direccion">Dirección:</label>
+		<input type="text" id="direccion" class="form-control" v-model="clienteSeleccionado.direccion">
+	  </div>
+
+      <button type="submit" class="btn btn-primary">Actualizar</button>
+
+      <button class='btn btn-default' @click.prevent='cancelarEdicion'>Cancelar</button>
+    </form>
+  </div>
+	
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>	
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        clientes: [
+          { nombre: 'Juan', apellido: 'Pérez', correoElectronico: 'juan.perez@example.com', direccion: 'Calle 1' },
+          { nombre: 'María', apellido: 'García', correoElectronico: 'maria.garcia@example.com', direccion: 'Calle 2' },
+          { nombre: 'Pedro', apellido: 'González', correoElectronico: 'pedro.gonzalez@example.com', direccion: 'Calle 3' }
+        ],
+        nuevoCliente: {
+          nombre: '',
+          apellido: '',
+          correoElectronico: '',
+		  direccion: ''
+        },
+        clienteSeleccionado: null,
+		index: 0
+      },
+      methods: {
+        agregarCliente() {
+		  if (this.$validarEmail(this.nuevoCliente.correoElectronico)){
+			this.clientes.push(this.nuevoCliente);
+          }
+		  this.nuevoCliente = {
+			nombre: '',
+			apellido: '',
+			correoElectronico: '',
+			direccion: ''
+		  };
+        },
+        editarCliente(index) {
+          this.clienteSeleccionado = Object.assign({}, this.clientes[index]);
+		  this.index = index;
+        },
+        actualizarCliente() {
+          //Object.assign(this.clientes[this.clientes.indexOf(this.clienteSeleccionado)], this.clienteSeleccionado);
+		  Object.assign(this.clientes[this.index], this.clienteSeleccionado);
+          this.cancelarEdicion();
+        },
+        eliminarCliente(index) {
+          if (confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
+            this.clientes.splice(index, 1);
+            this.cancelarEdicion();
+          }
+        },
+        cancelarEdicion() {
+		  this.index = 0;
+          this.clienteSeleccionado = null;
+        }
+      }});
+	  
+	  Vue.prototype.$validarEmail = function(email) {
+		  var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		  return re.test(String(email).toLowerCase());
+		}
+  </script>
+</body>
+</html>
